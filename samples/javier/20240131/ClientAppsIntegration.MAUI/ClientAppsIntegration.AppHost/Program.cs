@@ -1,6 +1,6 @@
 ﻿using HolisticWare.Aspire.Hosting.Maui;
 
-HolisticWare.Tools.Devices.Android.Emulator.Launch("nexus_9_api_33");
+// HolisticWare.Tools.Devices.Android.Emulator.Launch("nexus_9_api_33");
 HolisticWare.Tools.Devices.Android.Emulator.Launch("Pixel_3a_API_34_extension_level_7_arm64-v8a");
 
 System.Threading.Thread.Sleep(10000);
