@@ -41,46 +41,23 @@ public static partial class
                                                     DeviceCount = device_count
                                                 };
 
-        if (framework.ToLower().Contains("android"))
-        {
-            settings.DeviceReady = false;
+        IResourceBuilder<ProjectResource>? resource_builder = default;
 
-            System.Diagnostics.Process.Start
-                                        (
-                                            "/Users/moljac/Library/Android/sdk/emulator/emulator",
-                                            settings.DeviceName
-                                            // https://developer.android.com/studio/run/emulator-commandline
-                                            + " " +
-                                            "-no-cache" 
-                                            + " " +
-                                            "-gpu on"
-                                            + " " +
-                                            "-no-snapshot-load"
-                                            + " " +
-                                            "-no-boot-anim"
-                                        );
-        
-            System.Threading.Thread.Sleep(10000);
+        if (builder != null)
+        {
+            resource_builder = ProjectResourceBuilderExtensions.AddProject
+                                                                    (
+                                                                        builder, 
+                                                                        name, 
+                                                                        project
+                                                                    );                                                                    
         }
         else
         {
-            settings.DeviceReady = true;
+            throw new ArgumentNullException(nameof(builder));
         }
- 
-        // IDistributedApplicationBuilderMauiExtensions.AddProject
-        //                                                 (
-        //                                                     builder,
-        //                                                     name,
-        //                                                     project,
-        //                                                     settings
-        //                                                 );
 
-        return ProjectResourceBuilderExtensions.AddProject
-                                                        (
-                                                            builder,
-                                                            name,
-                                                            project
-                                                        );
+        return resource_builder;
     }
 
     public static
