@@ -33,6 +33,7 @@ public static partial class
                                             int device_count
                                         )
     {
+        ProjectMaui = project;
         MauiProjectSettings settings = new MauiProjectSettings()
                                                 {
                                                     TargetFramework = framework,
@@ -126,31 +127,86 @@ public static partial class
             string n = r.Name;
         }
 
-        System.Diagnostics.Process.Start
-        (
-            "dotnet",
-            $"build -f:net8.0-maccatalyst -t:run {ProjectMaui}"
-        );
-        System.Diagnostics.Process.Start
-        (
-            "dotnet",
-            $"build -f:net8.0-ios -t:run {ProjectMaui}"
-        );
-        System.Diagnostics.Process.Start
-        (
-            "dotnet",
-            $"build -f:net8.0-android -t:run {ProjectMaui}"
-        );
+        // TODO: transform into Parallel.ForEach
+        foreach(var device in devices)
+        {
+            Task.Run
+                (
+                    () =>
+                    {
 
-        Parallel.ForEach
-        (
-            devices,
-            tuple =>
-            {
-            }
-        );
 
-        return builder.Build();   // can be called only once
+                        if (device.tfm.Contains("android"))
+                        {
+                            System.Diagnostics.Process.Start
+                            (
+                                "dotnet",
+                                $"build {ProjectMaui} -f:net8.0-android -t:run"
+                            );
+                        }
+                        else if (device.tfm.Contains("ios"))
+                        {
+                            System.Diagnostics.Process.Start
+                            (
+                                "dotnet",
+                                // $"build {ProjectMaui} -f:net8.0-ios -t:run -r:iossimulator-arm64"
+                                // $"build {ProjectMaui} -f:net8.0-ios -t:run -p:RuntimeIdentifier=ios-arm64 -p:_DeviceName=:v2:udid=017184FB-06E4-4C88-9662-13C1E2444486"
+                                // $"build {ProjectMaui} -f:net8.0-ios -t:run -p:_DeviceName=:v2:udid=017184FB-06E4-4C88-9662-13C1E2444486"            
+                                $"build {ProjectMaui} -f:net8.0-ios -t:run -p:_DeviceName=:v2:udid={device.device}"            
+                            );                            
+                        }
+                        else if (device.tfm.Contains("maccatalyst"))
+                        {
+                            System.Diagnostics.Process.Start
+                            (
+                                "dotnet",
+                                $"build {ProjectMaui} -f:net8.0-maccatalyst -t:run"
+                            );
+                        }
+                        else
+                        {
+
+                        }
+                    }
+                );
+        }
+
+        // Parallel.Invoke
+        // (
+        //     () =>			// Param #1 - lambda expression
+        //     {
+        //     },
+        //     delegate()		// Param #2 - in-line delegate
+        //     {
+        //         System.Diagnostics.Process.Start
+        //         (
+        //             "dotnet",
+        //             // $"build {ProjectMaui} -f:net8.0-ios -t:run -r:iossimulator-arm64"
+        //             // $"build {ProjectMaui} -f:net8.0-ios -t:run -p:RuntimeIdentifier=ios-arm64 -p:_DeviceName=:v2:udid=017184FB-06E4-4C88-9662-13C1E2444486"
+        //             $"build {ProjectMaui} -f:net8.0-ios -t:run -p:_DeviceName=:v2:udid=017184FB-06E4-4C88-9662-13C1E2444486"            
+        //         );
+        //     },
+        //     () =>			// Param #1 - lambda expression
+        //     {
+        //         System.Diagnostics.Process.Start
+        //         (
+        //             "dotnet",
+        //             $"build {ProjectMaui} -f:net8.0-maccatalyst -t:run"
+        //         );
+        //     },
+        //     () =>			// Param #1 - lambda expression
+        //     {
+        //         System.Diagnostics.Process.Start
+        //         (
+        //             "dotnet",
+        //             // $"build {ProjectMaui} -f:net8.0-ios -t:run -r:iossimulator-arm64"
+        //             $"build {ProjectMaui} -f:net8.0-ios -t:run -p:_DeviceName=:v2:udid=43A58A15-E4EA-4FDD-9DBD-5E8C16CBAF98"
+                    
+        //         );
+        //     }
+        //  );
+
+        return builder.Build();   // Aspire Build() method- intercepted, can be called only once
     }
 
 }
