@@ -21,7 +21,7 @@ internal static class Program
         // -------------------------------------------------------------------------------------------------------------
         // Hosting
         //  start
-        HostApplicationBuilder builder = Host.CreateApplicationBuilder();
+        IHostApplicationBuilder builder = Host.CreateApplicationBuilder();
 
         builder.AddAppDefaults();
         
@@ -76,21 +76,25 @@ internal static class Program
         #endif
 
         #if IOS
-        // if you want to use a different Application Delegate class from "AppDelegate"
-        // you can specify it here.
-        UIApplication.Main(args, null, typeof(AppDelegate));
+        ProgramiOS.Main(args);
         #endif
 
         #if MACCATALYST
-        // if you want to use a different Application Delegate class from "AppDelegate"
-        // you can specify it here.
-        UIApplication.Main(args, null, typeof(AppDelegate));
+        ProgramMacCatalyst.Main(args);
         #endif
         
+        #if TIZEN
+        ProgramTizen.Main(args);
+        #endif
+
         app_host.StopAsync().GetAwaiter().GetResult();
 
         return;
     }
+
+    #if TIZEN
+    protected override MauiApp CreateMauiApp() => MauiProgram.CreateMauiApp();
+    #endif
 
     public static IServiceProvider Services { get; private set; } = default!;
 

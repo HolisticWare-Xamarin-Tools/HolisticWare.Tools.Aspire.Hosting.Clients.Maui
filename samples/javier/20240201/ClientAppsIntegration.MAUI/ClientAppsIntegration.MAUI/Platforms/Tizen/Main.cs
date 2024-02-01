@@ -4,7 +4,7 @@ using System;
 
 namespace ClientAppsIntegration.MAUI
 {
-    internal class Program : MauiApplication
+    internal class ProgramTizen : MauiApplication
     {
         protected override MauiApp CreateMauiApp() => MauiProgram.CreateMauiApp();
 

@@ -3,7 +3,7 @@ using UIKit;
 
 namespace ClientAppsIntegration.MAUI
 {
-    public class Program
+    public class ProgramMacCatalyst
     {
         // This is the main entry point of the application.
         static void Main(string[] args)
