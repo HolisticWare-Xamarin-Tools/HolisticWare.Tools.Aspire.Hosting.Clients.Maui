@@ -54,6 +54,23 @@ public static partial class
     }
 
     public static
+        IResourceBuilder<ProjectResource>
+                                        BuildSettings
+                                        (
+                                            this IResourceBuilder<ProjectResource>? builder
+                                        )
+    {
+        string code = 
+        """
+        public partial class __Class__
+        {
+        }
+        """;
+
+        return builder;
+    }
+
+    public static
         IDistributedApplicationBuilder
                                         BuildClient
                                         (

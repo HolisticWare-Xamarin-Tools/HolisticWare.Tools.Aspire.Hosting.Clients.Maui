@@ -27,7 +27,8 @@ builder
                "net8.0-maccatalyst",
             }
          )
-         .WithReference(apiService);
+         .WithReference(apiService)
+         .BuildSettings();
 
 builder
    .BuildClient

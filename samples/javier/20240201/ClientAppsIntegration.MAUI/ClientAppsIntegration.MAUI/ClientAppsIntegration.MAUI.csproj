@@ -98,6 +98,9 @@
 		<ProjectReference
 			Include="..\ClientAppsIntegration.AppDefaults\ClientAppsIntegration.AppDefaults.csproj" />
 	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="HolisticWare.Tools.Clients.Maui.Aspire.Integration" Version="0.0.1-alpha-20240202130217" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<Using Include="System.Net.Http" />

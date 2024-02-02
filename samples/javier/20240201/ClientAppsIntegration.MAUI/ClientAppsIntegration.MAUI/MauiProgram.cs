@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
+using HolisticWare.Aspire.Hosting.Maui;
+
 namespace ClientAppsIntegration.MAUI
 {
     public static class MauiProgram
@@ -35,7 +37,6 @@ namespace ClientAppsIntegration.MAUI
             #endif
             // wrapperMauiAppBuilder.Services.AddHttpServiceReference<CatalogServiceClient>("http://catalogservice", healthRelativePath: "readiness");               
 
-            wrapperMauiAppBuilder.Services.AddHttpClient<WeatherApiClient>(client => client.BaseAddress = new($"{scheme}://localhost:5303"));
             wrapperMauiAppBuilder.Services.AddSingleton<MainPage>();
             wrapperMauiAppBuilder.Services.AddSingleton<App>();
 
