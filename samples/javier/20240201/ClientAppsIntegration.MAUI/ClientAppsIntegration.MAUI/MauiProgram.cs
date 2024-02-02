@@ -26,8 +26,16 @@ namespace ClientAppsIntegration.MAUI
 #endif
 
             var scheme = wrapperMauiAppBuilder.Environment.IsDevelopment() ? "http" : "https";
-            wrapperMauiAppBuilder.Services.AddHttpClient<WeatherApiClient>(client => client.BaseAddress = new($"{scheme}://apiservice"));
-            //wrapperMauiAppBuilder.Services.AddHttpClient<WeatherApiClient>(client => client.BaseAddress = new($"{scheme}://localhost:5303"));
+
+            //wrapperMauiAppBuilder.Services.AddHttpClient<WeatherApiClient>(client => client.BaseAddress = new($"{scheme}://apiservice"));
+            #if ! __ANDROID__ 
+            wrapperMauiAppBuilder.Services.AddHttpClient<WeatherApiClient>(client => client.BaseAddress = new($"{scheme}://localhost:5303"));
+            #elif __ANDROID__
+            wrapperMauiAppBuilder.Services.AddHttpClient<WeatherApiClient>(client => client.BaseAddress = new($"{scheme}://10.0.2.2:5303"));
+            #endif
+            // wrapperMauiAppBuilder.Services.AddHttpServiceReference<CatalogServiceClient>("http://catalogservice", healthRelativePath: "readiness");               
+
+            wrapperMauiAppBuilder.Services.AddHttpClient<WeatherApiClient>(client => client.BaseAddress = new($"{scheme}://localhost:5303"));
             wrapperMauiAppBuilder.Services.AddSingleton<MainPage>();
             wrapperMauiAppBuilder.Services.AddSingleton<App>();
 

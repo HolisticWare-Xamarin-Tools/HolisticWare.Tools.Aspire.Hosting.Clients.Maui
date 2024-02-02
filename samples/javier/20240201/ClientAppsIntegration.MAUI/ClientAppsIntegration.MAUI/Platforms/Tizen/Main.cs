@@ -8,7 +8,7 @@ namespace ClientAppsIntegration.MAUI
     {
         protected override MauiApp CreateMauiApp() => MauiProgram.CreateMauiApp();
 
-        static void Main(string[] args)
+        internal static void MainTizen(string[] args)
         {
             var app = new Program();
             app.Run(args);

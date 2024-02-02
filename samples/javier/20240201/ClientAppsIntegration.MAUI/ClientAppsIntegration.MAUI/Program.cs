@@ -4,16 +4,23 @@ using UIKit;
 #endif
 
 using System;
+using System.Diagnostics.Metrics;
 using System.Net.Http;
-using Microsoft.Extensions.DependencyInjection;
+
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using OpenTelemetry;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Logs;
+using OpenTelemetry.Trace;
+using OpenTelemetry.Resources;
 
 namespace ClientAppsIntegration.MAUI;
 
 
-internal static class Program
+internal class Program
 {
     // This is the main entry point of the application.
     public static void Main(string[] args)
@@ -21,11 +28,12 @@ internal static class Program
         // -------------------------------------------------------------------------------------------------------------
         // Hosting
         //  start
-        IHostApplicationBuilder builder = Host.CreateApplicationBuilder();
+        HostApplicationBuilder builder = Host.CreateApplicationBuilder();
 
         builder.AddAppDefaults();
         
         string scheme = builder.Environment.IsDevelopment() ? "http" : "https";
+
         Uri endpoint = new($"{scheme}://apiservice");
         /*
         builder.Services.AddHttpClient<BasketServiceApiClient>(client => client.BaseAddress = endpoint);
@@ -43,14 +51,84 @@ internal static class Program
         builder.Services.AddSingleton<MainPage>();
         */
         
+        using
+            ILoggerFactory loggerFactory = LoggerFactory.Create
+                                                            (
+                                                                builder => 
+                                                                {
+                                                                    builder.AddOpenTelemetry
+                                                                                (
+                                                                                    options => 
+                                                                                    {
+                                                                                    options.AddConsoleExporter();
+                                                                                    }
+                                                                                );
+                                                                }
+                                                            );
+
+        ILogger<Program> logger = loggerFactory.CreateLogger < Program > ();
+
+        logger.LogInformation("Hello from OpenTelemetry");
+
+
+
+        Meter MauiMeter = new("ConsoleDemo.Metrics", "1.0");
+
+        Counter<long> RequestCounter = MauiMeter.CreateCounter<long>("RequestCounter");
+
+        using MeterProvider meterProvider = Sdk
+                                                .CreateMeterProviderBuilder()
+                                                .AddMeter("ConsoleDemo.Metrics")
+                                                .AddConsoleExporter()
+                                                .Build();
+
+        RequestCounter.Add(1, new KeyValuePair<string, object?>("POST Request", HttpMethod.Post));
+        RequestCounter.Add(1, new KeyValuePair<string, object?>("GET Request", HttpMethod.Get));
+        RequestCounter.Add(1, new KeyValuePair<string, object?>("GET Request", HttpMethod.Get));
+        RequestCounter.Add(1, new KeyValuePair<string, object?>("POST Request", HttpMethod.Post));
+        RequestCounter.Add(1, new KeyValuePair<string, object?>("PUT Request", HttpMethod.Put));
+
+        const string serviceName = "maui-telemetry";
+
+        builder.Logging.AddOpenTelemetry
+                            (
+                                options =>
+                                {
+                                    options
+                                        .SetResourceBuilder
+                                            (
+                                                ResourceBuilder
+                                                        .CreateDefault()
+                                                        .AddService(serviceName)
+                                            )
+                                            .AddConsoleExporter();
+                                }
+                            );
+        builder.Services
+                    .AddOpenTelemetry()
+                    .ConfigureResource(resource => resource.AddService(serviceName))
+                    .WithTracing
+                        (
+                            tracing => 
+                            tracing
+                                .AddGrpcClientInstrumentation()
+                                .AddConsoleExporter()
+                        )
+                    .WithMetrics
+                        (
+                            metrics =>
+                            metrics
+                                .AddHttpClientInstrumentation()
+                                .AddConsoleExporter()
+                        );
+
+
 
         IHost app_host = builder.Build();
 
         // WinForms
         /*
         */
-        Services = app_host.Services;
-        app_host.Start();
 
         // WPF
         /*
@@ -76,18 +154,22 @@ internal static class Program
         #endif
 
         #if IOS
-        ProgramiOS.Main(args);
+        ProgramiOS.MainiOS(args);
         #endif
 
         #if MACCATALYST
-        ProgramMacCatalyst.Main(args);
+        ProgramMacCatalyst.MainMacCatalyst(args);
         #endif
         
         #if TIZEN
-        ProgramTizen.Main(args);
+        ProgramTizen.MainTizen(args);
         #endif
 
-        app_host.StopAsync().GetAwaiter().GetResult();
+        Services = app_host.Services;
+        app_host.Start();
+        app_host.Run();
+        
+        // app_host.StopAsync().GetAwaiter().GetResult();
 
         return;
     }
