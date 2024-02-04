@@ -1,0 +1,30 @@
+﻿using Android.Runtime;
+
+namespace ClientAppsIntegration.MAUI
+{
+    public abstract class MauiAspireApplication : MauiApplication
+    {
+        public MauiAspireApplication(IntPtr handle, JniHandleOwnership ownership)
+            : base(handle, ownership)
+        {
+        }
+
+        protected override MauiApp CreateMauiApp()
+        {
+            // Initialize HostApplicationBuilder
+            HostApplicationBuilder builder = Host.CreateApplicationBuilder();
+            builder.AddAppDefaults();
+
+            IHost appHost = builder.Build();
+            Services = appHost.Services;
+            appHost.Start();
+
+            // Initialize .NET MAUI App
+            var mauiApp = MauiProgram.CreateMauiApp();
+
+            appHost.StopAsync().GetAwaiter().GetResult();
+
+            return mauiApp;
+        }
+    }
+}
